@@ -7,4 +7,6 @@
 Options:
 
 <code>bool IncludeNestedNamespaces</code>: if true, services from all sub-namespaces of chosen namespace will be registred.
-Example: Registration mark is placed in <code>Example</code> namespace. Then services from Example.SubNamespace will be registred too.
+Example: Registration mark is placed in <code>ExampleNamespace</code> namespace. Then services from <code>ExampleNamespace.SubNamespace</code> will be registred too.
+
+To exclude some service from automatic registration, use <code>SuppressAutomaticRegistration</code> attribute

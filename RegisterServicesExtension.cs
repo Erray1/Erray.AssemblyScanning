@@ -5,9 +5,20 @@ using System.Reflection;
 
 namespace Erray.AssemblyScanning
 {
+    /// <summary>
+    /// Register services automaticaly. To start, create some class implementing IServicesRegistrationMark
+    /// interface and place it in assembly, from which services must be registred
+    /// </summary>
     public static class RegisterServicesExtension
     {
-        public static IServiceCollection ScanAndRegisterServices<TAssemblyMark>(this IServiceCollection services, ServicesScanningOptions? opt)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TAssemblyMark">Class whose namespace includes services to be registred</typeparam>
+        /// <param name="services">Service collection</param>
+        /// <param name="opt">Registration options</param>
+        /// <returns>Service collection</returns>
+        public static IServiceCollection ScanAndRegisterServices<TAssemblyMark>(this IServiceCollection services, ServicesScanningOptions? opt = null)
             where TAssemblyMark : IServicesRegistrationMark
         {
             if (opt is null) opt = ServicesScanningOptions.Default;
@@ -16,6 +27,7 @@ namespace Erray.AssemblyScanning
             var namespaceName = assemblyMarkType.Namespace!;
             var types = assembly.GetTypes()
                 .Where(x => x.IsClass
+                && x.GetCustomAttribute(typeof(SuppressAutomaticRegistration)) is null
                 && !x.IsAbstract
                 && !(x.IsAbstract && x.IsSealed)
                 && !x.IsNestedPrivate
@@ -31,6 +43,7 @@ namespace Erray.AssemblyScanning
                 {
                     Implementation = x,
                     Interfaces = x.GetInterfaces()
+                    .Where(x => x.GetCustomAttribute(typeof(SuppressAutomaticRegistration)) is null)
                 });
 
             foreach (var serviceType in filteredTypes)
